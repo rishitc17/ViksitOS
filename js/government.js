@@ -371,7 +371,7 @@ async function submitReview(appId, action) {
     if (action === 'approve') {
       showToast('Application approved!', 'success');
       closeReviewModal();
-      await createDocumentFromApplication(app);
+      await createDocumentFromApplication(appId);
     } else {
       showToast('Application rejected', 'warning');
       closeReviewModal();
@@ -385,27 +385,44 @@ async function submitReview(appId, action) {
   }
 }
 
-async function createDocumentFromApplication(app) {
-  var docType = app.service_type;
-  var docName = app.service_name;
-  var docNumber = 'VIK-' + Date.now().toString(36).toUpperCase();
-
+async function createDocumentFromApplication(appId) {
   if (!window.ViksitOS.supabase) {
     console.error('Supabase not initialized');
     return;
   }
 
   try {
+    var { data: app, error: fetchError } = await window.ViksitOS.supabase
+      .from('applications')
+      .select('citizen_id, service_type, service_name')
+      .eq('id', appId)
+      .single();
+
+    if (fetchError || !app) {
+      console.error('Failed to fetch application:', fetchError);
+      showToast('Could not fetch application details', 'error');
+      return;
+    }
+
+    console.log('Creating document for:', app.service_type, app.service_name);
+
+    if (!app.service_type) {
+      console.error('service_type is null for app:', appId);
+      showToast('Application data incomplete', 'error');
+      return;
+    }
+
+    var docNumber = 'VIK-' + Date.now().toString(36).toUpperCase();
+
     var { error: docError } = await window.ViksitOS.supabase
       .from('documents')
       .insert([{
         citizen_id: app.citizen_id,
-        document_type: docType,
-        document_name: docName,
+        document_type: app.service_type,
+        document_name: app.service_name,
         document_number: docNumber,
         issued_date: new Date().toISOString().split('T')[0],
-        status: 'active',
-        metadata: { application_id: app.id }
+        status: 'active'
       }]);
 
     if (docError) {
@@ -419,7 +436,7 @@ async function createDocumentFromApplication(app) {
       .insert([{
         user_id: app.citizen_id,
         title: 'Document Issued',
-        message: 'Your ' + docName + ' has been issued. View it in Documents.',
+        message: 'Your ' + app.service_name + ' has been issued. View it in Documents.',
         type: 'document',
         app_source: 'documents',
         redirect_url: 'documents'
