@@ -33,6 +33,11 @@
         <p class="login-subtitle">Empowering Digital India</p>
       </div>
 
+      <div class="auth-mode-tabs">
+        <button class="auth-tab active" data-mode="signin">Sign In</button>
+        <button class="auth-tab" data-mode="signup">Sign Up</button>
+      </div>
+
       <div class="login-tabs">
         <button class="tab-btn active" data-role="citizen">
           <i class="fa-solid fa-user"></i>
@@ -45,6 +50,14 @@
       </div>
 
       <form id="loginForm" class="login-form">
+        <div class="form-group signup-only hidden">
+          <label class="form-label">Full Name</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="fullName" class="form-input" placeholder="Enter your full name">
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Email Address</label>
           <div class="input-wrapper">
@@ -54,10 +67,10 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Full Name</label>
+          <label class="form-label">Password</label>
           <div class="input-wrapper">
-            <i class="fa-solid fa-user"></i>
-            <input type="text" id="fullName" class="form-input" placeholder="Enter your full name" required>
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" class="form-input" placeholder="Enter your password" required minlength="6">
           </div>
         </div>
 
@@ -78,24 +91,15 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-lg w-full" id="submitBtn">
-          <i class="fa-solid fa-paper-plane"></i>
-          <span>Send Magic Link</span>
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Sign In</span>
         </button>
 
         <p class="login-info">
           <i class="fa-solid fa-shield-halved"></i>
-          We'll send a magic link to your email for secure login
+          <span id="authInfoText">Sign in to access your account</span>
         </p>
       </form>
-
-      <div id="successMessage" class="success-message hidden">
-        <i class="fa-solid fa-circle-check success-icon"></i>
-        <h3>Magic Link Sent!</h3>
-        <p>Check your email for the login link. Click it to access ViksitOS.</p>
-        <button class="btn btn-outline mt-2" onclick="location.reload()">
-          <i class="fa-solid fa-rotate"></i> Back to Login
-        </button>
-      </div>
 
       <div class="login-footer">
         <p>Secure authentication powered by Supabase</p>

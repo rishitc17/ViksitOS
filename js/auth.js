@@ -2,9 +2,10 @@
 
 window.ViksitOS = window.ViksitOS || {};
 window.ViksitOS.auth = (function() {
-  let supabase = null;
-  let currentUser = null;
-  let currentRole = 'citizen';
+  var supabase = null;
+  var currentUser = null;
+  var currentRole = 'citizen';
+  var authMode = 'signin';
 
   function initSupabase() {
     if (SUPABASE_CONFIG.url === 'YOUR_SUPABASE_URL') {
@@ -18,34 +19,53 @@ window.ViksitOS.auth = (function() {
 
   async function checkAuth() {
     if (!supabase) return null;
-    const { data: { session } } = await supabase.auth.getSession();
+    var result = await supabase.auth.getSession();
+    var session = result.data.session;
     if (session) {
       currentUser = session.user;
-      const { data: profile } = await supabase
+      var profileResult = await supabase
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
         .single();
-      if (profile) return profile;
+      if (profileResult.data) return profileResult.data;
     }
     return null;
   }
 
-  async function loginWithEmail(email, fullName, role, department) {
+  async function signIn(email, password) {
     if (!supabase) {
-      window.ViksitOS.auth.showToast('Supabase not configured', 'error');
+      showToast('Supabase not configured', 'error');
       return false;
     }
-    const { error } = await supabase.auth.signInWithOtp({
+    var result = await supabase.auth.signInWithPassword({ email: email, password: password });
+    if (result.error) {
+      showToast(result.error.message, 'error');
+      return false;
+    }
+    return true;
+  }
+
+  async function signUp(email, password, fullName, role, department) {
+    if (!supabase) {
+      showToast('Supabase not configured', 'error');
+      return false;
+    }
+    var result = await supabase.auth.signUp({
       email: email,
+      password: password,
       options: {
         data: { full_name: fullName, role: role, department: department },
         emailRedirectTo: window.location.origin + '/ViksitOS/pages/citizen.html'
       }
     });
-    if (error) {
-      window.ViksitOS.auth.showToast(error.message, 'error');
+    if (result.error) {
+      showToast(result.error.message, 'error');
       return false;
+    }
+    if (result.data.user && !result.data.session) {
+      showToast('Account created! Please check your email to verify, then sign in.', 'success');
+      return 'verify';
     }
     return true;
   }
@@ -58,9 +78,9 @@ window.ViksitOS.auth = (function() {
   }
 
   async function getProfile() {
-    const stored = localStorage.getItem('viksitos_user');
+    var stored = localStorage.getItem('viksitos_user');
     if (stored) return JSON.parse(stored);
-    const profile = await checkAuth();
+    var profile = await checkAuth();
     if (profile) {
       localStorage.setItem('viksitos_user', JSON.stringify(profile));
       return profile;
@@ -73,13 +93,13 @@ window.ViksitOS.auth = (function() {
       window.location.href = '/ViksitOS/pages/login.html';
       return null;
     }
-    const profile = await getProfile();
+    var profile = await getProfile();
     if (!profile) {
       window.location.href = '/ViksitOS/pages/login.html';
       return null;
     }
     if (requiredRole && profile.role !== requiredRole) {
-      window.ViksitOS.auth.showToast('Access denied', 'error');
+      showToast('Access denied', 'error');
       window.location.href = profile.role === 'government' ? '/ViksitOS/pages/government.html' : '/ViksitOS/pages/citizen.html';
       return null;
     }
@@ -88,32 +108,35 @@ window.ViksitOS.auth = (function() {
 
   async function handleAuthCallback() {
     if (!supabase) return null;
-    const { data: { session }, error } = await supabase.auth.getSession();
+    var result = await supabase.auth.getSession();
+    var session = result.data.session;
+    var error = result.error;
     if (error || !session) return null;
     currentUser = session.user;
-    let { data: profile } = await supabase
+    var profileResult = await supabase
       .from('profiles')
       .select('*')
       .eq('id', currentUser.id)
       .single();
+    var profile = profileResult.data;
     if (!profile) {
-      const { data: newProfile, error: profileError } = await supabase
+      var insertResult = await supabase
         .from('profiles')
         .insert([{
           id: currentUser.id,
           email: currentUser.email,
-          full_name: currentUser.user_metadata?.full_name || 'User',
-          first_name: (currentUser.user_metadata?.full_name || 'User').split(' ')[0],
-          role: currentUser.user_metadata?.role || 'citizen',
-          department: currentUser.user_metadata?.department || null
+          full_name: currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : 'User',
+          first_name: (currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : 'User').split(' ')[0],
+          role: currentUser.user_metadata && currentUser.user_metadata.role ? currentUser.user_metadata.role : 'citizen',
+          department: currentUser.user_metadata ? currentUser.user_metadata.department : null
         }])
         .select()
         .single();
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
+      if (insertResult.error) {
+        console.error('Profile creation error:', insertResult.error);
         return null;
       }
-      profile = newProfile;
+      profile = insertResult.data;
     }
     localStorage.setItem('viksitos_user', JSON.stringify(profile));
     if (profile.role === 'government') {
@@ -127,11 +150,11 @@ window.ViksitOS.auth = (function() {
   function showToast(message, type, duration) {
     type = type || 'info';
     duration = duration || 5000;
-    const container = document.getElementById('toastContainer');
+    var container = document.getElementById('toastContainer');
     if (!container) return;
-    const toast = document.createElement('div');
+    var toast = document.createElement('div');
     toast.className = 'toast toast-' + type;
-    const icons = {
+    var icons = {
       success: 'fa-circle-check',
       error: 'fa-circle-xmark',
       info: 'fa-circle-info',
@@ -160,6 +183,30 @@ window.ViksitOS.auth = (function() {
         return;
       }
 
+      var authTabs = document.querySelectorAll('.auth-tab');
+      authTabs.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          authTabs.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          authMode = btn.dataset.mode;
+
+          var signupFields = document.querySelectorAll('.signup-only');
+          signupFields.forEach(function(el) {
+            el.classList.toggle('hidden', authMode !== 'signup');
+          });
+
+          var submitBtn = document.getElementById('submitBtn');
+          var authInfoText = document.getElementById('authInfoText');
+          if (authMode === 'signup') {
+            submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span>Sign Up</span>';
+            authInfoText.textContent = 'Create a new account to get started';
+          } else {
+            submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In</span>';
+            authInfoText.textContent = 'Sign in to access your account';
+          }
+        });
+      });
+
       var tabBtns = document.querySelectorAll('.tab-btn');
       tabBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -176,28 +223,59 @@ window.ViksitOS.auth = (function() {
       loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
         var email = document.getElementById('email').value.trim();
-        var fullName = document.getElementById('fullName').value.trim();
+        var password = document.getElementById('password').value;
+        var fullName = document.getElementById('fullName') ? document.getElementById('fullName').value.trim() : '';
         var department = document.getElementById('department') ? document.getElementById('department').value : null;
         var submitBtn = document.getElementById('submitBtn');
 
-        if (!email || !fullName) {
-          showToast('Please fill in all fields', 'error');
+        if (!email || !password) {
+          showToast('Please fill in email and password', 'error');
+          return;
+        }
+
+        if (authMode === 'signup' && !fullName) {
+          showToast('Please enter your full name', 'error');
           return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div> Sending...';
+        submitBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div> Please wait...';
 
-        loginWithEmail(email, fullName, currentRole, department).then(function(success) {
-          if (success) {
-            loginForm.classList.add('hidden');
-            document.querySelector('.login-tabs').classList.add('hidden');
-            document.getElementById('successMessage').classList.remove('hidden');
-          } else {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>Send Magic Link</span>';
-          }
-        });
+        if (authMode === 'signup') {
+          signUp(email, password, fullName, currentRole, department).then(function(result) {
+            if (result === true) {
+              showToast('Account created! Redirecting...', 'success');
+              setTimeout(function() {
+                handleAuthCallback();
+              }, 1000);
+            } else if (result === 'verify') {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In</span>';
+              authMode = 'signin';
+              authTabs.forEach(function(b) { b.classList.remove('active'); });
+              authTabs[0].classList.add('active');
+              document.querySelectorAll('.signup-only').forEach(function(el) { el.classList.add('hidden'); });
+              document.getElementById('authInfoText').textContent = 'Sign in to access your account';
+              var submitBtn2 = document.getElementById('submitBtn');
+              submitBtn2.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In</span>';
+            } else {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span>Sign Up</span>';
+            }
+          });
+        } else {
+          signIn(email, password).then(function(success) {
+            if (success) {
+              showToast('Signed in successfully!', 'success');
+              setTimeout(function() {
+                handleAuthCallback();
+              }, 500);
+            } else {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In</span>';
+            }
+          });
+        }
       });
     });
   }
@@ -209,7 +287,8 @@ window.ViksitOS.auth = (function() {
 
   return {
     initSupabase: initSupabase,
-    loginWithEmail: loginWithEmail,
+    signIn: signIn,
+    signUp: signUp,
     logout: logout,
     getProfile: getProfile,
     requireAuth: requireAuth,
@@ -223,13 +302,10 @@ window.ViksitOS.auth = (function() {
   };
 })();
 
-// Auto-init login page when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   window.ViksitOS.auth.initLoginPage();
 });
 
-// Expose commonly used functions globally for other modules
-window.ViksitOS = window.ViksitOS || {};
 window.showToast = function(msg, type, dur) { window.ViksitOS.auth.showToast(msg, type, dur); };
 window.logout = function() { window.ViksitOS.auth.logout(); };
 window.requireAuth = function(role) { return window.ViksitOS.auth.requireAuth(role); };
