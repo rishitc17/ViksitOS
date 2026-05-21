@@ -1,25 +1,25 @@
 // ViksitOS Service Worker
 
-const CACHE_NAME = 'viksitos-v1';
+const CACHE_NAME = 'viksitos-v2';
 const ASSETS_TO_CACHE = [
   '/ViksitOS/',
   '/ViksitOS/pages/login.html',
   '/ViksitOS/pages/citizen.html',
   '/ViksitOS/pages/government.html',
-  '/ViksitOS/css/styles.css',
-  '/ViksitOS/css/login.css',
-  '/ViksitOS/css/citizen.css',
-  '/ViksitOS/css/government.css',
-  '/ViksitOS/js/config.js',
-  '/ViksitOS/js/auth.js',
-  '/ViksitOS/js/notifications.js',
-  '/ViksitOS/js/chatbot.js',
-  '/ViksitOS/js/pwa.js',
-  '/ViksitOS/js/citizen-home.js',
-  '/ViksitOS/js/citizen-apply.js',
-  '/ViksitOS/js/citizen-applications.js',
-  '/ViksitOS/js/citizen-documents.js',
-  '/ViksitOS/js/government.js',
+  '/ViksitOS/css/styles.css?v=2',
+  '/ViksitOS/css/login.css?v=2',
+  '/ViksitOS/css/citizen.css?v=2',
+  '/ViksitOS/css/government.css?v=2',
+  '/ViksitOS/js/config.js?v=2',
+  '/ViksitOS/js/auth.js?v=2',
+  '/ViksitOS/js/notifications.js?v=2',
+  '/ViksitOS/js/chatbot.js?v=2',
+  '/ViksitOS/js/pwa.js?v=2',
+  '/ViksitOS/js/citizen-home.js?v=2',
+  '/ViksitOS/js/citizen-apply.js?v=2',
+  '/ViksitOS/js/citizen-applications.js?v=2',
+  '/ViksitOS/js/citizen-documents.js?v=2',
+  '/ViksitOS/js/government.js?v=2',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];

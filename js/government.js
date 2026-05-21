@@ -341,7 +341,7 @@ async function submitReview(appId, action) {
   try {
     var { data: app } = await window.ViksitOS.supabase
       .from('applications')
-      .select('citizen_id, service_name')
+      .select('citizen_id, service_name, service_type, form_data')
       .eq('id', appId)
       .single();
 
