@@ -1,4 +1,5 @@
 // Government Interface
+const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 let govtProfile = null;
 let currentPage = 'dashboard';

@@ -1,4 +1,5 @@
 // Notifications Module
+const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 async function loadNotifications() {
   if (!userProfile || !supabase) return;

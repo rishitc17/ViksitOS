@@ -1,4 +1,5 @@
 // Citizen Documents Module
+const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 async function initDocuments(container) {
   container.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading documents...</p></div>';

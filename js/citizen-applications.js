@@ -1,4 +1,5 @@
 // Citizen My Applications Module
+const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 async function initMyApplications(container) {
   container.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading applications...</p></div>';

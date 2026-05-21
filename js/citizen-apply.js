@@ -1,4 +1,5 @@
 // Citizen Apply Services Module
+const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 function initApplyServices(container) {
   renderServiceList(container);

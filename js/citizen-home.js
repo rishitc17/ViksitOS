@@ -1,5 +1,5 @@
 // Citizen Home Screen
-
+const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 let userProfile = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
