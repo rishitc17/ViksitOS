@@ -1,159 +1,144 @@
 // Citizen Apply Services Module
-const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 function initApplyServices(container) {
   renderServiceList(container);
 }
 
 function renderServiceList(container) {
-  let html = `
-    <div class="search-container">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" class="search-input" id="serviceSearch" placeholder="Search services...">
-    </div>
-    <div class="service-categories" id="serviceCategories">
-  `;
+  var html = '';
+  html += '<div class="search-container">';
+  html += '<i class="fa-solid fa-magnifying-glass"></i>';
+  html += '<input type="text" class="search-input" id="serviceSearch" placeholder="Search services...">';
+  html += '</div>';
+  html += '<div class="service-categories" id="serviceCategories">';
 
-  for (const [key, category] of Object.entries(SERVICE_TYPES)) {
-    html += `
-      <div class="service-category" data-category="${key}">
-        <h3><i class="fa-solid ${category.icon}"></i> ${category.label}</h3>
-        <div class="service-list">
-    `;
+  for (var key in SERVICE_TYPES) {
+    var category = SERVICE_TYPES[key];
+    html += '<div class="service-category" data-category="' + key + '">';
+    html += '<h3><i class="fa-solid ' + category.icon + '"></i> ' + category.label + '</h3>';
+    html += '<div class="service-list">';
 
-    for (const service of category.services) {
-      html += `
-        <div class="service-item" data-service="${service.id}" data-name="${service.name.toLowerCase()}">
-          <i class="fa-solid ${service.icon}"></i>
-          <span>${service.name}</span>
-        </div>
-      `;
+    for (var i = 0; i < category.services.length; i++) {
+      var service = category.services[i];
+      html += '<div class="service-item" data-service="' + service.id + '" data-name="' + service.name.toLowerCase() + '">';
+      html += '<i class="fa-solid ' + service.icon + '"></i>';
+      html += '<span>' + service.name + '</span>';
+      html += '</div>';
     }
 
-    html += `</div></div>`;
+    html += '</div></div>';
   }
 
-  html += `</div>`;
+  html += '</div>';
   container.innerHTML = html;
 
-  // Attach event listeners
-  container.querySelectorAll('.service-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const serviceId = item.dataset.service;
+  container.querySelectorAll('.service-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var serviceId = item.dataset.service;
       openServiceForm(container, serviceId);
     });
   });
 
-  // Search functionality
-  const searchInput = container.querySelector('#serviceSearch');
-  searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    container.querySelectorAll('.service-item').forEach(item => {
-      const name = item.dataset.name;
+  var searchInput = container.querySelector('#serviceSearch');
+  searchInput.addEventListener('input', function(e) {
+    var query = e.target.value.toLowerCase();
+    container.querySelectorAll('.service-item').forEach(function(item) {
+      var name = item.dataset.name;
       item.classList.toggle('hidden', !name.includes(query));
     });
 
-    // Hide empty categories
-    container.querySelectorAll('.service-category').forEach(cat => {
-      const visibleItems = cat.querySelectorAll('.service-item:not(.hidden)');
+    container.querySelectorAll('.service-category').forEach(function(cat) {
+      var visibleItems = cat.querySelectorAll('.service-item:not(.hidden)');
       cat.style.display = visibleItems.length > 0 ? 'block' : 'none';
     });
   });
 }
 
 function openServiceForm(container, serviceId) {
-  const service = findService(serviceId);
+  var service = findService(serviceId);
   if (!service) return;
 
-  const fields = SERVICE_FORMS[serviceId] || [];
+  var fields = SERVICE_FORMS[serviceId] || [];
 
-  let html = `
-    <div class="service-form-container">
-      <button class="btn btn-outline btn-sm mb-3" id="backToServices">
-        <i class="fa-solid fa-arrow-left"></i> Back to Services
-      </button>
-      <div class="service-form-header">
-        <i class="fa-solid ${service.icon}"></i>
-        <div>
-          <h2>${service.name}</h2>
-          <p class="text-muted">Fill in the required information</p>
-        </div>
-      </div>
-      <form id="serviceForm">
-  `;
+  var html = '';
+  html += '<div class="service-form-container">';
+  html += '<button class="btn btn-outline btn-sm mb-3" id="backToServices">';
+  html += '<i class="fa-solid fa-arrow-left"></i> Back to Services';
+  html += '</button>';
+  html += '<div class="service-form-header">';
+  html += '<i class="fa-solid ' + service.icon + '"></i>';
+  html += '<div><h2>' + service.name + '</h2>';
+  html += '<p class="text-muted">Fill in the required information</p></div>';
+  html += '</div>';
+  html += '<form id="serviceForm">';
 
-  for (const field of fields) {
-    html += `<div class="form-group">`;
-    html += `<label class="form-label">${field.label} ${field.required ? '<span style="color:var(--error)">*</span>' : ''}</label>`;
+  for (var i = 0; i < fields.length; i++) {
+    var field = fields[i];
+    html += '<div class="form-group">';
+    html += '<label class="form-label">' + field.label + (field.required ? ' <span style="color:var(--error)">*</span>' : '') + '</label>';
 
     if (field.type === 'select') {
-      html += `<select class="form-select" name="${field.name}" ${field.required ? 'required' : ''}>`;
-      html += `<option value="">Select ${field.label}</option>`;
-      for (const opt of field.options) {
-        html += `<option value="${opt}">${opt}</option>`;
+      html += '<select class="form-select" name="' + field.name + '" ' + (field.required ? 'required' : '') + '>';
+      html += '<option value="">Select ' + field.label + '</option>';
+      for (var j = 0; j < field.options.length; j++) {
+        html += '<option value="' + field.options[j] + '">' + field.options[j] + '</option>';
       }
-      html += `</select>`;
+      html += '</select>';
     } else if (field.type === 'textarea') {
-      html += `<textarea class="form-textarea" name="${field.name}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}></textarea>`;
+      html += '<textarea class="form-textarea" name="' + field.name + '" placeholder="' + (field.placeholder || '') + '" ' + (field.required ? 'required' : '') + '></textarea>';
     } else {
-      html += `<input type="${field.type}" class="form-input" name="${field.name}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''} ${field.default ? `value="${field.default}"` : ''}>`;
+      html += '<input type="' + field.type + '" class="form-input" name="' + field.name + '" placeholder="' + (field.placeholder || '') + '" ' + (field.required ? 'required' : '') + (field.default ? ' value="' + field.default + '"' : '') + '>';
     }
 
-    html += `</div>`;
+    html += '</div>';
   }
 
-  html += `
-        <div class="form-actions">
-          <button type="button" class="btn btn-outline" id="cancelForm">Cancel</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-paper-plane"></i> Submit Application
-          </button>
-        </div>
-      </form>
-    </div>
-  `;
+  html += '<div class="form-actions">';
+  html += '<button type="button" class="btn btn-outline" id="cancelForm">Cancel</button>';
+  html += '<button type="submit" class="btn btn-primary">';
+  html += '<i class="fa-solid fa-paper-plane"></i> Submit Application';
+  html += '</button>';
+  html += '</div>';
+  html += '</form></div>';
 
   container.innerHTML = html;
 
-  // Back button
-  container.querySelector('#backToServices').addEventListener('click', () => {
+  container.querySelector('#backToServices').addEventListener('click', function() {
     renderServiceList(container);
   });
 
-  container.querySelector('#cancelForm').addEventListener('click', () => {
+  container.querySelector('#cancelForm').addEventListener('click', function() {
     renderServiceList(container);
   });
 
-  // Form submission
-  container.querySelector('#serviceForm').addEventListener('submit', async (e) => {
+  container.querySelector('#serviceForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     await submitApplication(serviceId, service.name);
   });
 }
 
 function findService(serviceId) {
-  for (const category of Object.values(SERVICE_TYPES)) {
-    const service = category.services.find(s => s.id === serviceId);
-    if (service) return service;
+  for (var key in SERVICE_TYPES) {
+    var category = SERVICE_TYPES[key];
+    for (var i = 0; i < category.services.length; i++) {
+      if (category.services[i].id === serviceId) return category.services[i];
+    }
   }
   return null;
 }
 
 async function submitApplication(serviceId, serviceName) {
-  const form = document.getElementById('serviceForm');
-  const formData = new FormData(form);
-  const data = {};
-  
-  for (const [key, value] of formData.entries()) {
-    data[key] = value;
-  }
+  var form = document.getElementById('serviceForm');
+  var formData = new FormData(form);
+  var data = {};
+  formData.forEach(function(value, key) { data[key] = value; });
 
-  const submitBtn = form.querySelector('button[type="submit"]');
+  var submitBtn = form.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div> Submitting...';
 
   try {
-    const { error } = await supabase
+    var { error } = await window.ViksitOS.supabase
       .from('applications')
       .insert([{
         citizen_id: userProfile.id,
@@ -165,25 +150,21 @@ async function submitApplication(serviceId, serviceName) {
 
     if (error) throw error;
 
-    // Create notification for citizen
-    await supabase
+    await window.ViksitOS.supabase
       .from('notifications')
       .insert([{
         user_id: userProfile.id,
         title: 'Application Submitted',
-        message: `Your ${serviceName} application has been submitted successfully.`,
+        message: 'Your ' + serviceName + ' application has been submitted successfully.',
         type: 'application',
         app_source: 'apply',
         redirect_url: 'applications'
       }]);
 
     showToast('Application submitted successfully!', 'success');
-    
-    // Reload notifications
     await loadNotifications();
 
-    // Go back to services list
-    const container = document.getElementById('appViewContent');
+    var container = document.getElementById('appViewContent');
     renderServiceList(container);
 
   } catch (err) {

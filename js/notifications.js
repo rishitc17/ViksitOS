@@ -1,11 +1,10 @@
 // Notifications Module
-const supabase = window.ViksitOS ? window.ViksitOS.supabase : null;
 
 async function loadNotifications() {
-  if (!userProfile || !supabase) return;
+  if (!userProfile || !window.ViksitOS.supabase) return;
 
   try {
-    const { data: notifications, error } = await supabase
+    const { data: notifications, error } = await window.ViksitOS.supabase
       .from('notifications')
       .select('*')
       .eq('user_id', userProfile.id)
@@ -59,14 +58,12 @@ function renderNotifications(notifications) {
 
   list.innerHTML = html;
 
-  // Attach click handlers
   list.querySelectorAll('.notif-item').forEach(item => {
     item.addEventListener('click', async () => {
       const id = item.dataset.id;
       const redirect = item.dataset.redirect;
 
-      // Mark as read
-      await supabase
+      await window.ViksitOS.supabase
         .from('notifications')
         .update({ read: true })
         .eq('id', id);
@@ -74,11 +71,9 @@ function renderNotifications(notifications) {
       item.classList.remove('unread');
       updateNotifBadge();
 
-      // Close panel
       document.getElementById('notifPanel').classList.remove('active');
       document.getElementById('notifOverlay').classList.remove('active');
 
-      // Redirect if applicable
       if (redirect) {
         openApp(redirect);
       }
@@ -86,12 +81,11 @@ function renderNotifications(notifications) {
   });
 }
 
-function updateNotifBadge(notifications = null) {
+function updateNotifBadge(notifications) {
   const badge = document.getElementById('notifBadge');
   if (!badge) return;
 
   if (!notifications) {
-    // Just update from current state
     const unread = document.querySelectorAll('.notif-item.unread').length;
     if (unread > 0) {
       badge.textContent = unread > 9 ? '9+' : unread;
@@ -112,9 +106,9 @@ function updateNotifBadge(notifications = null) {
 }
 
 async function markAllNotificationsRead() {
-  if (!userProfile || !supabase) return;
+  if (!userProfile || !window.ViksitOS.supabase) return;
 
-  await supabase
+  await window.ViksitOS.supabase
     .from('notifications')
     .update({ read: true })
     .eq('user_id', userProfile.id)
@@ -124,12 +118,12 @@ async function markAllNotificationsRead() {
   showToast('All notifications marked as read', 'success');
 }
 
-// Create a notification
-async function createNotification(userId, title, message, type = 'system', appSource = null, redirectUrl = null) {
-  if (!supabase) return;
+async function createNotification(userId, title, message, type, appSource, redirectUrl) {
+  type = type || 'system';
+  if (!window.ViksitOS.supabase) return;
 
   try {
-    await supabase
+    await window.ViksitOS.supabase
       .from('notifications')
       .insert([{
         user_id: userId,
