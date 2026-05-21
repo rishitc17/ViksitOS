@@ -34,7 +34,7 @@ CREATE TABLE documents (
   citizen_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
   document_type TEXT NOT NULL,
   document_name TEXT NOT NULL,
-  document_number TEXT UNIQUE,
+  document_number TEXT,
   issued_date DATE NOT NULL,
   valid_until DATE,
   status TEXT NOT NULL CHECK (status IN ('active', 'expired', 'revoked')) DEFAULT 'active',

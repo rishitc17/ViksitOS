@@ -13,7 +13,7 @@ async function initMyApplications(container) {
     if (error) throw error;
 
     if (!applications || applications.length === 0) {
-      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-folder-open"></i><h3>No Applications Yet</h3><p>Apply for services to see them here</p><button class="btn btn-primary mt-2" onclick="openApp(\'apply\')"><i class="fa-solid fa-plus"></i> Apply Now</button></div>';
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-folder-open"></i><h3>No Applications Yet</h3><p>Apply for services to see them here</p><button class="btn btn-primary mt-2" onclick="openApp(\'apply\')"><i class="fa-solid fa-file-circle-plus"></i> Apply Now</button></div>';
       return;
     }
 

@@ -1,4 +1,8 @@
 -- Run this ENTIRE script in Supabase SQL Editor to fix all issues
+-- This also removes the UNIQUE constraint on document_number if it exists
+
+-- Remove UNIQUE constraint on document_number if it exists
+ALTER TABLE documents DROP CONSTRAINT IF EXISTS documents_document_number_key;
 
 -- 1. Drop existing policies
 DROP POLICY IF EXISTS "Anyone can view profiles" ON profiles;

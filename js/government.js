@@ -390,8 +390,13 @@ async function createDocumentFromApplication(app) {
   var docName = app.service_name;
   var docNumber = 'VIK-' + Date.now().toString(36).toUpperCase();
 
+  if (!window.ViksitOS.supabase) {
+    console.error('Supabase not initialized');
+    return;
+  }
+
   try {
-    await window.ViksitOS.supabase
+    var { error: docError } = await window.ViksitOS.supabase
       .from('documents')
       .insert([{
         citizen_id: app.citizen_id,
@@ -400,10 +405,16 @@ async function createDocumentFromApplication(app) {
         document_number: docNumber,
         issued_date: new Date().toISOString().split('T')[0],
         status: 'active',
-        metadata: { application_id: app.id, form_data: app.form_data }
+        metadata: { application_id: app.id }
       }]);
 
-    await window.ViksitOS.supabase
+    if (docError) {
+      console.error('Document insert error:', docError);
+      showToast('Document creation failed: ' + docError.message, 'error');
+      return;
+    }
+
+    var { error: notifError } = await window.ViksitOS.supabase
       .from('notifications')
       .insert([{
         user_id: app.citizen_id,
@@ -414,9 +425,12 @@ async function createDocumentFromApplication(app) {
         redirect_url: 'documents'
       }]);
 
+    if (notifError) console.error('Notification error:', notifError);
+
     showToast('Document created and citizen notified', 'success');
   } catch (err) {
     console.error('Error creating document:', err);
+    showToast('Error creating document', 'error');
   }
 }
 

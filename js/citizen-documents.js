@@ -13,7 +13,7 @@ async function initDocuments(container) {
     if (error) throw error;
 
     if (!documents || documents.length === 0) {
-      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-file-shield"></i><h3>No Documents Yet</h3><p>Approved applications will generate documents here</p><button class="btn btn-primary mt-2" onclick="openApp(\'apply\')"><i class="fa-solid fa-plus"></i> Apply for a Service</button></div>';
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-file-shield"></i><h3>No Documents Yet</h3><p>Approved applications will generate documents here</p><button class="btn btn-primary mt-2" onclick="openApp(\'apply\')"><i class="fa-solid fa-file-circle-plus"></i> Apply for a Service</button></div>';
       return;
     }
 

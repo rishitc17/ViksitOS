@@ -43,6 +43,20 @@ window.ViksitOS.auth = (function() {
       showToast(result.error.message, 'error');
       return false;
     }
+    // Check role and redirect accordingly
+    var profileResult = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', result.data.user.id)
+      .single();
+    if (profileResult.data) {
+      localStorage.setItem('viksitos_user', JSON.stringify(profileResult.data));
+      if (profileResult.data.role === 'government') {
+        window.location.href = '/ViksitOS/pages/government.html';
+      } else {
+        window.location.href = '/ViksitOS/pages/citizen.html';
+      }
+    }
     return true;
   }
 

@@ -15,7 +15,7 @@ const SERVICE_TYPES = {
         services: [
             { id: 'birth_certificate', name: 'Birth Certificate', icon: 'fa-baby' },
             { id: 'death_certificate', name: 'Death Certificate', icon: 'fa-cross' },
-            { id: 'marriage_certificate', name: 'Marriage Certificate', icon: 'fa-rings-wedding' },
+            { id: 'marriage_certificate', name: 'Marriage Certificate', icon: 'fa-heart' },
             { id: 'residence_certificate', name: 'Residence Certificate', icon: 'fa-house-chimney' },
             { id: 'income_certificate', name: 'Income Certificate', icon: 'fa-indian-rupee-sign' },
             { id: 'caste_certificate', name: 'Caste Certificate', icon: 'fa-id-card' },
