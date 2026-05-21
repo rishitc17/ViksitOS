@@ -120,23 +120,35 @@ window.ViksitOS.auth = (function() {
       .single();
     var profile = profileResult.data;
     if (!profile) {
+      var fullName = currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : 'User';
+      var firstName = fullName.split(' ')[0];
+      var role = currentUser.user_metadata && currentUser.user_metadata.role ? currentUser.user_metadata.role : 'citizen';
+      var dept = currentUser.user_metadata ? currentUser.user_metadata.department : null;
       var insertResult = await supabase
         .from('profiles')
         .insert([{
           id: currentUser.id,
           email: currentUser.email,
-          full_name: currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : 'User',
-          first_name: (currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : 'User').split(' ')[0],
-          role: currentUser.user_metadata && currentUser.user_metadata.role ? currentUser.user_metadata.role : 'citizen',
-          department: currentUser.user_metadata ? currentUser.user_metadata.department : null
+          full_name: fullName,
+          first_name: firstName,
+          role: role,
+          department: dept
         }])
         .select()
         .single();
       if (insertResult.error) {
         console.error('Profile creation error:', insertResult.error);
-        return null;
+        profile = {
+          id: currentUser.id,
+          email: currentUser.email,
+          full_name: fullName,
+          first_name: firstName,
+          role: role,
+          department: dept
+        };
+      } else {
+        profile = insertResult.data;
       }
-      profile = insertResult.data;
     }
     localStorage.setItem('viksitos_user', JSON.stringify(profile));
     if (profile.role === 'government') {
