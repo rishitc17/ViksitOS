@@ -2,7 +2,7 @@
   "name": "ViksitOS - Digital India Platform",
   "short_name": "ViksitOS",
   "description": "Unified citizen and government web application for India",
-  "start_url": "/pages/citizen.html",
+  "start_url": "/ViksitOS/pages/citizen.html",
   "display": "standalone",
   "background_color": "#F5F7FA",
   "theme_color": "#FF9933",

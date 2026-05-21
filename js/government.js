@@ -5,7 +5,7 @@ let currentPage = 'dashboard';
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!initSupabase()) {
-    window.location.href = 'login.html';
+    window.location.href = '/ViksitOS/pages/login.html';
     return;
   }
 

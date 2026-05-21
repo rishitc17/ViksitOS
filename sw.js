@@ -2,24 +2,24 @@
 
 const CACHE_NAME = 'viksitos-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/pages/login.html',
-  '/pages/citizen.html',
-  '/pages/government.html',
-  '/css/styles.css',
-  '/css/login.css',
-  '/css/citizen.css',
-  '/css/government.css',
-  '/js/config.js',
-  '/js/auth.js',
-  '/js/notifications.js',
-  '/js/chatbot.js',
-  '/js/pwa.js',
-  '/js/citizen-home.js',
-  '/js/citizen-apply.js',
-  '/js/citizen-applications.js',
-  '/js/citizen-documents.js',
-  '/js/government.js',
+  '/ViksitOS/',
+  '/ViksitOS/pages/login.html',
+  '/ViksitOS/pages/citizen.html',
+  '/ViksitOS/pages/government.html',
+  '/ViksitOS/css/styles.css',
+  '/ViksitOS/css/login.css',
+  '/ViksitOS/css/citizen.css',
+  '/ViksitOS/css/government.css',
+  '/ViksitOS/js/config.js',
+  '/ViksitOS/js/auth.js',
+  '/ViksitOS/js/notifications.js',
+  '/ViksitOS/js/chatbot.js',
+  '/ViksitOS/js/pwa.js',
+  '/ViksitOS/js/citizen-home.js',
+  '/ViksitOS/js/citizen-apply.js',
+  '/ViksitOS/js/citizen-applications.js',
+  '/ViksitOS/js/citizen-documents.js',
+  '/ViksitOS/js/government.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
@@ -77,7 +77,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         // Offline fallback
         if (event.request.destination === 'document') {
-          return caches.match('/pages/login.html');
+          return caches.match('/ViksitOS/pages/login.html');
         }
       })
   );
@@ -93,7 +93,7 @@ self.addEventListener('push', (event) => {
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23FF9933" width="100" height="33"/><rect fill="%23fff" y="33" width="100" height="34"/><rect fill="%23138808" y="67" width="100" height="33"/><circle cx="50" cy="50" r="12" fill="%23000080"/></svg>',
     badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23FF9933" width="100" height="33"/><rect fill="%23fff" y="33" width="100" height="34"/><rect fill="%23138808" y="67" width="100" height="33"/><circle cx="50" cy="50" r="12" fill="%23000080"/></svg>',
     data: {
-      url: data.url || '/pages/citizen.html'
+      url: data.url || '/ViksitOS/pages/citizen.html'
     },
     actions: [
       { action: 'view', title: 'View' },
@@ -111,7 +111,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   if (event.action === 'view' || !event.action) {
-    const url = event.notification.data.url || '/pages/citizen.html';
+    const url = event.notification.data.url || '/ViksitOS/pages/citizen.html';
     event.waitUntil(
       clients.matchAll({ type: 'window' }).then((clientList) => {
         for (const client of clientList) {

@@ -49,7 +49,7 @@ async function loginWithEmail(email, fullName, role, department = null) {
         role: role,
         department: department
       },
-      emailRedirectTo: window.location.origin + '/pages/citizen.html'
+      emailRedirectTo: window.location.origin + '/ViksitOS/pages/citizen.html'
     }
   });
 
@@ -68,7 +68,7 @@ async function logout() {
   }
   localStorage.removeItem('viksitos_user');
   localStorage.removeItem('viksitos_session');
-  window.location.href = 'login.html';
+  window.location.href = '/ViksitOS/pages/login.html';
 }
 
 // Get current user profile
@@ -90,19 +90,19 @@ async function getProfile() {
 // Require authentication
 async function requireAuth(requiredRole = null) {
   if (!initSupabase()) {
-    window.location.href = 'login.html';
+    window.location.href = '/ViksitOS/pages/login.html';
     return null;
   }
 
   const profile = await getProfile();
   if (!profile) {
-    window.location.href = 'login.html';
+    window.location.href = '/ViksitOS/pages/login.html';
     return null;
   }
 
   if (requiredRole && profile.role !== requiredRole) {
     showToast('Access denied', 'error');
-    window.location.href = profile.role === 'government' ? 'government.html' : 'citizen.html';
+    window.location.href = profile.role === 'government' ? '/ViksitOS/pages/government.html' : '/ViksitOS/pages/citizen.html';
     return null;
   }
 
@@ -148,9 +148,9 @@ async function handleAuthCallback() {
   localStorage.setItem('viksitos_user', JSON.stringify(profile));
   
   if (profile.role === 'government') {
-    window.location.href = 'government.html';
+    window.location.href = '/ViksitOS/pages/government.html';
   } else {
-    window.location.href = 'citizen.html';
+    window.location.href = '/ViksitOS/pages/citizen.html';
   }
 
   return profile;
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check if already logged in
   const profile = await getProfile();
   if (profile) {
-    window.location.href = profile.role === 'government' ? 'government.html' : 'citizen.html';
+    window.location.href = profile.role === 'government' ? '/ViksitOS/pages/government.html' : '/ViksitOS/pages/citizen.html';
     return;
   }
 
